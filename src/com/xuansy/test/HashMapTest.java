@@ -16,12 +16,13 @@ import java.util.Map;
 public class HashMapTest {
 
     public static void main(String[] args) {
-        Map<Integer, Integer> map = new HashMap<>(3);
-        for (int i = 0; i < 12; i++) {
-            map.put(i, i);
-        }
-        map.put(1000130, null);
-        map.put(1000130, null);
+        Map<Integer, Integer> map = new HashMap<>(2);
+        map.put(1, null);
+        map.put(2, null);
+        map.put(3, null);
+        map.put(4, null);
+        map.put(5, null);
+        map.get(5);
     }
 
 }

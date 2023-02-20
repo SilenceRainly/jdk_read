@@ -25,6 +25,8 @@
 
 package java.util;
 
+import sun.misc.SharedSecrets;
+
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -36,7 +38,6 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import sun.misc.SharedSecrets;
 
 /**
  * Hash table based implementation of the <tt>Map</tt> interface.  This
@@ -338,6 +339,10 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      */
     static final int hash(Object key) {
         int h;
+        // 求hash     高16位 和 低16位进行 异或运算
+        // 原hash     1111 1111 1111 1111 1010 1010 1010 1011
+        // 右移16位    0000 0000 0000 0000 1111 1111 1111 1111
+        // 异或运算后   1111 1111 1111 1111 0101 0101 0101 0100
         return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
     }
 
@@ -626,32 +631,49 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      */
     final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
                    boolean evict) {
+        // table 当前数组页 p 是否冲突的节点 n 数组长度 i 索引
         Node<K,V>[] tab; Node<K,V> p; int n, i;
         if ((tab = table) == null || (n = tab.length) == 0)
             n = (tab = resize()).length;
+        // 数组寻址 (n - 1) & hash  =  hash % n 和取模一样 但是性能更高
+        // https://blog.csdn.net/weixin_45692584/article/details/115310762
+        // 位置上没有数据，那么就新增node
         if ((p = tab[i = (n - 1) & hash]) == null)
             tab[i] = newNode(hash, key, value, null);
+            // 位置有数据
         else {
+            // e 当前node
             Node<K,V> e; K k;
+            // 判断位置的hash是否一样并且，key是否一样，key一样的话，那么替换node
             if (p.hash == hash &&
                 ((k = p.key) == key || (key != null && key.equals(k))))
+                //
                 e = p;
+            // 判断是否是树节点,如果当前节点是树的节点
             else if (p instanceof TreeNode)
                 e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value);
             else {
+                // 在链表末尾插入节点
                 for (int binCount = 0; ; ++binCount) {
+                    // 看看next是否有值 并且 设置e为下一个节点
                     if ((e = p.next) == null) {
+                        // 节点数量达到阈值8，执行treeifyBin方法
+                        // 此方法会根据HashMap的数组来决定是否要转换为红黑树
+                        // 数组长度大于等于64才会转换为红黑树，否则只会扩容数组
                         p.next = newNode(hash, key, value, null);
                         if (binCount >= TREEIFY_THRESHOLD - 1) // -1 for 1st
                             treeifyBin(tab, hash);
                         break;
                     }
+                    // 当前节点下一个节点的key是否和现在一样
                     if (e.hash == hash &&
                         ((k = e.key) == key || (key != null && key.equals(k))))
                         break;
+                    // 如果都不是那么直接加入
                     p = e;
                 }
             }
+            // 判断当前节点是否存在 不存在
             if (e != null) { // existing mapping for key
                 V oldValue = e.value;
                 if (!onlyIfAbsent || oldValue == null)
@@ -677,15 +699,21 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      * @return the table
      */
     final Node<K,V>[] resize() {
+        // 将扩容前的hash表赋值给oldTab
         Node<K,V>[] oldTab = table;
+        // oldCap为旧hash表的容量
         int oldCap = (oldTab == null) ? 0 : oldTab.length;
+        // 扩容前的容量
         int oldThr = threshold;
-        int newCap, newThr = 0;
+        // newCap 新的容量，newThr新的扩容阈值
+        int newCap, newThr = 0;    //容量超过最大值就不再扩容
+        // 容量超过最大值就不再扩容
         if (oldCap > 0) {
             if (oldCap >= MAXIMUM_CAPACITY) {
                 threshold = Integer.MAX_VALUE;
                 return oldTab;
             }
+            // 没超过最大值扩容到原来的2倍
             else if ((newCap = oldCap << 1) < MAXIMUM_CAPACITY &&
                      oldCap >= DEFAULT_INITIAL_CAPACITY)
                 newThr = oldThr << 1; // double threshold
@@ -705,6 +733,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
         @SuppressWarnings({"rawtypes","unchecked"})
         Node<K,V>[] newTab = (Node<K,V>[])new Node[newCap];
         table = newTab;
+        // 扩容完成后，重新进行hash分配，写入数据
         if (oldTab != null) {
             for (int j = 0; j < oldCap; ++j) {
                 Node<K,V> e;
