@@ -1,4 +1,4 @@
-package com.xuansy.test;
+package com.xuansy.map;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,13 +16,10 @@ import java.util.Map;
 public class HashMapTest {
 
     public static void main(String[] args) {
-        Map<Integer, Integer> map = new HashMap<>(2);
-        map.put(1, null);
-        map.put(2, null);
-        map.put(3, null);
-        map.put(4, null);
-        map.put(5, null);
-        map.get(5);
+        Map<String, String> map = new HashMap<>(2);
+        map.put("5", "5");
+        map.get("5");
+        System.out.println(map);
     }
 
 }

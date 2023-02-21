@@ -339,6 +339,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      */
     static final int hash(Object key) {
         int h;
+        // https://www.cnblogs.com/grey-wolf/p/13069173.html
         // 求hash     高16位 和 低16位进行 异或运算
         // 原hash     1111 1111 1111 1111 1010 1010 1010 1011
         // 右移16位    0000 0000 0000 0000 1111 1111 1111 1111
@@ -703,7 +704,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
         Node<K,V>[] oldTab = table;
         // oldCap为旧hash表的容量
         int oldCap = (oldTab == null) ? 0 : oldTab.length;
-        // 扩容前的容量
+        // 扩容前的阈值
         int oldThr = threshold;
         // newCap 新的容量，newThr新的扩容阈值
         int newCap, newThr = 0;    //容量超过最大值就不再扩容
