@@ -223,6 +223,7 @@ public class ArrayList<E> extends AbstractList<E>
     }
 
     private static int calculateCapacity(Object[] elementData, int minCapacity) {
+        // 判断原来空间是否是空的，是就扩容
         if (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
             return Math.max(DEFAULT_CAPACITY, minCapacity);
         }
@@ -234,14 +235,17 @@ public class ArrayList<E> extends AbstractList<E>
     }
 
     private void ensureExplicitCapacity(int minCapacity) {
+        // 更改值+1
         modCount++;
 
         // overflow-conscious code
+        // 如果最小的容量大于 现在已有容量 那么扩容
         if (minCapacity - elementData.length > 0)
             grow(minCapacity);
     }
 
     /**
+     * 可能是其他虚拟机会保留一些头词 暂不知
      * The maximum size of array to allocate.
      * Some VMs reserve some header words in an array.
      * Attempts to allocate larger arrays may result in
@@ -258,9 +262,12 @@ public class ArrayList<E> extends AbstractList<E>
     private void grow(int minCapacity) {
         // overflow-conscious code
         int oldCapacity = elementData.length;
+        // 最小1.5倍扩容
         int newCapacity = oldCapacity + (oldCapacity >> 1);
+        // 如果新的小于最小的 那么以最小的为准
         if (newCapacity - minCapacity < 0)
             newCapacity = minCapacity;
+        // 最大为  Integer.MAX_VALUE - 8 否则就报oom了
         if (newCapacity - MAX_ARRAY_SIZE > 0)
             newCapacity = hugeCapacity(minCapacity);
         // minCapacity is usually close to size, so this is a win:
@@ -461,6 +468,7 @@ public class ArrayList<E> extends AbstractList<E>
      * @return <tt>true</tt> (as specified by {@link Collection#add})
      */
     public boolean add(E e) {
+        // 确定空间
         ensureCapacityInternal(size + 1);  // Increments modCount!!
         elementData[size++] = e;
         return true;
@@ -476,8 +484,9 @@ public class ArrayList<E> extends AbstractList<E>
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
     public void add(int index, E element) {
+        // 判断是否越界
         rangeCheckForAdd(index);
-
+        // 判断大小是否足够，扩容
         ensureCapacityInternal(size + 1);  // Increments modCount!!
         System.arraycopy(elementData, index, elementData, index + 1,
                          size - index);
@@ -545,6 +554,7 @@ public class ArrayList<E> extends AbstractList<E>
      */
     private void fastRemove(int index) {
         modCount++;
+        // 判断是否最后一位 最后一位不需要copy数组
         int numMoved = size - index - 1;
         if (numMoved > 0)
             System.arraycopy(elementData, index+1, elementData, index,
