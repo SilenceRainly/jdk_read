@@ -43,15 +43,15 @@ public class ThreadPoolExecutorTest {
          * 线程状态
          *     public static Thread.State toThreadState(int var0) {
          *         if ((var0 & 4) != 0) {
-         *             return State.RUNNABLE;     //运行中
+         *             return State.RUNNABLE;       // 运行中 & 4
          *         } else if ((var0 & 1024) != 0) {
-         *             return State.BLOCKED;     // 阻塞
+         *             return State.BLOCKED;        // 阻塞   & 1024
          *         } else if ((var0 & 16) != 0) {
-         *             return State.WAITING;      // 等待
+         *             return State.WAITING;        // 等待   & 16
          *         } else if ((var0 & 32) != 0) {
-         *             return State.TIMED_WAITING;   // 等待
+         *             return State.TIMED_WAITING;  // 等待   & 32
          *         } else if ((var0 & 2) != 0) {
-         *             return State.TERMINATED;    // 终止
+         *             return State.TERMINATED;     // 终止   & 2
          *         } else {
          *             return (var0 & 1) == 0 ? State.NEW : State.RUNNABLE;  // 初始   运行中
          *         }
